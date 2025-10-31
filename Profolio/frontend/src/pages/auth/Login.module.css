@@ -42,6 +42,16 @@
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
+    /* --- CRITICAL FIXES ADDED BELOW --- */
+    text-decoration: none; /* Ensure no underline for the Link component */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+    overflow: hidden;    /* Hide any content that still overflows (shouldn't happen with nowrap) */
+    text-overflow: ellipsis; /* Add ellipsis if text is still too long after nowrap (unlikely here) */
+}
+
+.googleButton span { /* Target the text inside the button, or the icon span directly */
+    /* If the issue is the text not fitting, we might need to adjust font-size or spacing */
+    font-size: 1rem; /* Ensure consistent font size */
 }
 
 .signupLink {

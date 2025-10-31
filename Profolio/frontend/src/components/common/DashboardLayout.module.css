@@ -1,5 +1,7 @@
 @import url("../../styles/theme.css");
 
+/* frontend/src/components/common/DashboardLayout.module.css */
+
 /* --- Base Layout --- */
 .dashboardLayout {
     display: flex;
@@ -8,18 +10,37 @@
     color: var(--color-text-light);
 }
 
-/* --- Sidebar (Inspired by dark, professional console panels) --- */
+/* --- Sidebar --- */
 .sidebar {
-    width: 250px;
+    width: 250px; /* Default Wide Width */
     background-color: var(--color-secondary-dark);
     padding: 30px 20px;
     
-    display: flex; /* CRITICAL: Must be a flex container */
-    flex-direction: column; /* CRITICAL: Stack items vertically */
-    justify-content: space-between; /* CRITICAL: Pushes first item (navWrapper) to top, last item (Logout) to bottom */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
     
     border-right: 1px solid var(--color-border-dark);
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+
+    /* ADDED: Transition for Width */
+    transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
+    overflow-x: hidden; /* CRITICAL: Hide text overflow when collapsed */
+    position: relative; /* For the toggle button positioning */
+    z-index: 20; /* Ensure sidebar is above main content */
+}
+
+/* --- Collapsed State --- */
+.sidebarCollapsed {
+    width: 80px; /* Narrow Collapsed Width */
+    padding: 30px 15px;
+}
+
+.sidebar nav ul {
+    /* CRITICAL FIX: Remove default browser bullets, padding, and margin */
+    list-style: none; 
+    padding: 0;
+    margin: 0;
 }
 
 .title {
@@ -27,6 +48,31 @@
     font-weight: 800;
     color: var(--color-accent-blue);
     margin-bottom: 30px;
+    white-space: nowrap; /* Prevent wrap in wide state */
+    transition: opacity 0.3s;
+}
+.titleCollapsed{
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-accent-blue);
+    margin-bottom: 30px;
+    white-space: nowrap; /* Prevent wrap in wide state */
+    transition: opacity 0.3s;
+}
+/* Hide the main title text when collapsed */
+.titleHidden {
+    opacity: 0;
+    font-size: 0;
+    margin-bottom: 30px;
+}
+
+/* --- Navigation Content Wrapper --- */
+.navWrapper {
+    flex-grow: 1; /* CRITICAL: Takes all remaining vertical space */
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 20px; 
 }
 
 /* --- Navigation Links --- */
@@ -34,53 +80,125 @@
     margin-bottom: 12px;
 }
 
-.navWrapper {
-    flex-grow: 1; /* CRITICAL: This element takes all remaining vertical space */
-    display: flex;
-    flex-direction: column; 
-    margin-bottom: 20px; /* Space above logout button */
-}
-
-.navLink {
+.navLink, .navLinkActive {
     display: flex;
     align-items: center;
     padding: 10px 15px;
     border-radius: 6px;
-    color: var(--color-text-muted);
     text-decoration: none;
     transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap; /* Prevent label wrap */
+}
+
+.navLink {
+    color: var(--color-text-muted);
 }
 
 .navLink:hover {
-    background-color: #334155; /* A slightly lighter secondary dark */
+    background-color: #334155; 
     color: var(--color-text-light);
 }
 
 .navLinkActive {
     composes: navLink;
-    background-color: var(--color-accent-blue); /* Highlight active link */
+    background-color: var(--color-accent-blue); 
     color: var(--color-text-light);
     font-weight: 600;
 }
 .navLinkActive:hover {
-    background-color: var(--color-accent-blue); /* Keep color on hover for active */
+    background-color: var(--color-accent-blue); 
 }
 
-/* --- Logout Button --- */
+/* --- Conditional Visibility Classes --- */
+.labelHidden {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 0.1s;
+}
+.iconVisible {
+    min-width: 30px; /* Ensure icon has dedicated space */
+    text-align: center;
+}
+
+/* --- Logout Button and Public Link --- */
+.publicLink {
+    composes: button-primary;
+    
+    /* Default State: Subtle border */
+    background-color: transparent;
+    
+    color: var(--color-text-light); 
+    
+    text-align: center;
+    margin-bottom: 15px;
+    
+    /* CRITICAL: Add transition for size change */
+    transition: width 0.3s, height 0.3s, padding 0.3s, border-radius 0.3s; 
+}
+
+.publicLink:hover {
+    /* Hover State: Apply the strong accent color */
+    background-color: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+    color: var(--color-text-light);
+}
+
+.publicLinkCollapsed {
+    width: 50px; 
+    height: 50px; 
+    padding: 12px;
+    font-size: 0; /* Hide text */
+    border-radius: 50%; /* Make it a circle */
+    margin: 0 auto 15px auto; /* Re-center it */
+}
+
 .logoutButton {
     composes: button-primary;
     background-color: var(--color-accent-red);
-    margin-top: auto; /* Fallback for older browsers, although justify-content should handle it */
-    min-width: 100%; /* Make button fill sidebar width */
+    margin-top: auto; 
+    min-width: 100%; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: padding 0.3s, font-size 0.3s;
 }
 .logoutButton:hover {
     background-color: #c53030;
 }
-.publicLink {
-    composes: button-primary;
-    background-color: #3b82f6; /* Use accent blue for the public link CTA */
-    text-align: center;
-    margin-bottom: 15px;
+
+/* Styles for collapsed buttons */
+.buttonCollapsed {
+    width: 50px; 
+    height: 50px; 
+    padding: 12px;
+    font-size: 0; /* Hide text */
+    border-radius: 50%; /* Make them circles when text is hidden */
+    margin: 0 auto;
+}
+
+/* --- Collapse Toggle Button --- */
+.toggleButton {
+    position: absolute;
+    top: 35px; /* Aligns with the vertical flow */
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--color-accent-blue);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    z-index: 30; /* Ensure button is on top */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+}
+.toggleButton:hover {
+    transform: scale(1.1);
 }
 
 /* --- Main Content --- */
@@ -90,21 +208,39 @@
     overflow-y: auto;
 }
 
-
-
-/* --- Responsive adjustments (Optional but professional) --- */
+/* --- Responsive adjustments (for mobile/tablet) --- */
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
         height: auto;
+        padding: 10px 20px;
         position: static;
         flex-direction: row;
         flex-wrap: wrap;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border-dark);
     }
-    .navLink {
-        padding: 8px 10px;
-        font-size: 0.9rem;
+    .sidebarCollapsed {
+         /* Disable collapsing on small screens; use full width top bar */
+         width: 100%;
+         padding: 10px 20px;
     }
+    
+    .navWrapper {
+        flex-direction: row;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .title, .titleHidden {
+        display: none; /* Hide title on mobile */
+    }
+    
+    .toggleButton {
+        /* Hide toggle button on mobile since we use full width top bar */
+        display: none;
+    }
+    
     .mainContent {
         padding: 20px;
     }

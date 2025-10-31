@@ -12,7 +12,8 @@ import ProjectsManager from './pages/dashboard/ProjectsManager';
 // Public Pages (to be created)
 import LandingPage from './pages/public/LandingPage';
 import PortfolioView from './pages/public/PortfolioView';
-import ProtectedRoute from './components/common/ProtectedRoute'; // 👈 Import ProtectedRoute
+import ProtectedRoute from './components/common/ProtectedRoute'; 
+import DashboardLayout from './components/common/DashboardLayout';
 
 function App() {
   return (
@@ -29,9 +30,12 @@ function App() {
         {/* PROTECTED ROUTES GROUP */}
         {/* This route acts as a wrapper. If the check fails, all child routes are blocked */}
         <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/profile" element={<ProfileEditor />} />
-            <Route path="/dashboard/projects" element={<ProjectsManager />} />
+            {/* CRITICAL: DashboardLayout is the parent of all dashboard pages */}
+            <Route element={<DashboardLayout />}> 
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/profile" element={<ProfileEditor />} />
+                <Route path="/dashboard/projects" element={<ProjectsManager />} />
+            </Route>
         </Route>
         
         {/* Catch-all for 404 */}

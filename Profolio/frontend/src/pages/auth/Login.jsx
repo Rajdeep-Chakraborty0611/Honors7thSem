@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import styles from './Login.module.css'; // 👈 Import CSS Module
+import styles from './Login.module.css';
+import AppNavbar from '../../components/common/AppNavbar'; // 👈 Import CSS Module
 
 const Login = () => {
   const { googleLogin, isAuthenticated } = useAuth();
@@ -27,6 +28,8 @@ useEffect(() => {
   };
 
   return (
+    <>
+    <AppNavbar />
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
         <h2 className={styles.title}>Welcome Back</h2>
@@ -46,6 +49,8 @@ useEffect(() => {
         </p>
       </div>
     </div>
+    </>
+    
   );
 };
 

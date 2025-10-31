@@ -1,0 +1,46 @@
+@import url("../../styles/theme.css");
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: var(--color-secondary-dark); /* Dark background */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid var(--color-border-dark);
+}
+
+.logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-accent-blue);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.logo:hover {
+    color: #5b9bf9;
+}
+
+.navLinks {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.navLink {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+.navLink:hover {
+    background-color: var(--color-primary-dark);
+    color: var(--color-text-light);
+}
+
+.ctaButton {
+    composes: button-primary button-accent; /* Global Button Style */
+    padding: 8px 16px;
+}

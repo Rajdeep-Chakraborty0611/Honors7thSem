@@ -1,42 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import styles from './Login.module.css'; // Re-using Login styles for the card/container
+import AppNavbar from '../../components/common/AppNavbar'; // 👈 Imported Navbar
 
 const Signup = () => {
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <h2>Create an Account</h2>
-        <p style={{ marginBottom: '20px', color: '#666' }}>
-          We currently use Google to simplify account creation.
-        </p>
-        
-        <p>
-          Already have an account? <Link to="/login" style={{ color: '#007bff', textDecoration: 'none' }}>**Log In**</Link>
-        </p>
-        <p style={{ marginTop: '15px', fontSize: '0.9em', color: '#888' }}>
-          (The Google login button is on the login page.)
-        </p>
+    <>
+      {/* 1. Render the AppNavbar */}
+      <AppNavbar /> 
+      
+      <div className={styles.loginContainer}>
+        <div className={styles.loginCard}>
+          
+          <h2 className={styles.title}>Join the Portfolio Builder</h2>
+          <p className={styles.subtitle}>
+            Create your professional portfolio with a single click.
+          </p>
+          
+          <Link 
+            to="/login" 
+            className={styles.googleButton} 
+            // Re-use the googleButton style for the CTA link
+          >
+            <span className={styles.googleIcon}></span>
+            Sign Up with Google
+          </Link>
+
+          <p className={styles.signupLink} style={{ marginTop: '20px' }}>
+            Already have an account? <Link to="/login">Log In</Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
-};
-
-// Simple inline styles for demonstration
-const containerStyle = {
-    display: 'flex', 
-    flexDirection: 'column', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    minHeight: '100vh', 
-    backgroundColor: '#eef2f5' 
-};
-
-const cardStyle = { 
-    padding: '40px', 
-    backgroundColor: '#fff', 
-    borderRadius: '8px', 
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-    textAlign: 'center'
 };
 
 export default Signup;
