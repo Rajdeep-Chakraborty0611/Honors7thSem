@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 // Note: We need a UserContext later to store persistent user data, 
 // but for now, we'll use local state.
 
