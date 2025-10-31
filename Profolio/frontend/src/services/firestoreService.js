@@ -102,6 +102,29 @@ export const updateProject = async (projectId, projectData) => {
   await updateDoc(projectRef, projectData);
 };
 
+// ... (Keep existing imports and functions: ensureUserProfileExists, updateProfile, etc.)
+
+/**
+ * Finds a user's profile based on their public username (used for PortfolioView).
+ * @param {string} username - The public, unique username
+ */
+export const getProfileByUsername = async (username) => {
+  if (!username) return null;
+  
+  // Create a query to search the 'users' collection for a matching username
+  const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
+  
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null; // User not found
+  }
+  
+  // Since username should be unique, we only expect one document
+  const userDoc = querySnapshot.docs[0];
+  
+  return userDoc.data();
+};
 /**
  * Deletes a project.
  * @param {string} projectId - The Firestore document ID of the project
