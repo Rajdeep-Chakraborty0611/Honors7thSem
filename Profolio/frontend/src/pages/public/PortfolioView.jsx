@@ -1,104 +1,136 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProfileByUsername, getProjects } from '../../services/firestoreService'; // 👈 Import new lookup functions
+import { getProfileByUsername, getProjects } from '../../services/firestoreService';
+import styles from './PortfolioView.module.css'; // 👈 Import CSS Module
 
 const PortfolioView = () => {
   const { username } = useParams();
-  const [portfolio, setPortfolio] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
-      setPortfolio(null); // Clear previous data
+      setProfile(null);
+      setProjects([]);
 
       try {
-        // 1. Find the user profile by the username in the URL
-        const profile = await getProfileByUsername(username);
+        const userProfile = await getProfileByUsername(username);
 
-        if (!profile) {
-          setError(`User profile for @${username} was not found.`);
-          setLoading(false);
+        if (!userProfile) {
+          setError(`User "${username}" not found.`);
           return;
         }
 
-        // 2. Use the profile's UID to fetch all associated projects
-        const userProjects = await getProjects(profile.uid);
+        setProfile(userProfile);
         
-        // 3. Combine and set the final portfolio object
-        setPortfolio({
-          profile,
-          projects: userProjects,
-        });
+        // Fetch projects using the UID found in the profile
+        const userProjects = await getProjects(userProfile.uid);
+        setProjects(userProjects);
 
-      } catch (e) {
-        console.error("Failed to fetch portfolio data:", e);
-        setError('An error occurred while loading the portfolio.');
+      } catch (err) {
+        console.error("Error fetching portfolio data:", err);
+        setError("Failed to load portfolio due to a network or server error.");
       } finally {
         setLoading(false);
       }
     };
-    fetchPortfolio();
-  }, [username]); // Re-run whenever the username in the URL changes
 
+    fetchData();
+  }, [username]);
 
-  if (loading) return <h1 style={{ textAlign: 'center', padding: '100px' }}>Loading Portfolio...</h1>;
-  if (error) return <h1 style={{ textAlign: 'center', padding: '100px', color: '#dc3545' }}>Error: {error}</h1>;
-  if (!portfolio) return <h1 style={{ textAlign: 'center', padding: '100px' }}>Portfolio Not Found</h1>;
+  if (loading) return <div className={styles.message}>Loading Portfolio...</div>;
+  if (error) return <div className={styles.message}>{error}</div>;
+  if (!profile) return <div className={styles.message}>Portfolio not available.</div>;
 
-  const { profile, projects } = portfolio;
+  // Helper function to render links if they exist
+  const renderLink = (url, label) => {
+    if (!url) return null;
+    // Ensure links are full URLs
+    const fullUrl = (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:')) ? url : `https://${url}`;
+    
+    return (
+      <a 
+        href={fullUrl} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className={styles.socialLink}
+      >
+        {label}
+      </a>
+    );
+  };
   
   return (
-    <div style={portfolioContainerStyle}>
+    <div className={styles.portfolioContainer}>
       
-      {/* 1. Header/Profile Section */}
-      <header style={headerStyle}>
-        <h2>{profile.name}</h2>
-        <h3 style={{ color: '#007bff' }}>{profile.title}</h3>
-        <p style={{ maxWidth: '600px', margin: '15px auto' }}>{profile.bio}</p>
-        <div style={socialLinksStyle}>
-            {profile.github && <a href={profile.github} target="_blank" rel="noopener noreferrer">GitHub</a>}
-            {profile.linkedin && <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>}
-            {/* Add more social links here */}
+      {/* --- Header/Hero Section --- */}
+      <header className={styles.header}>
+        <h1 className={styles.name}>{profile.name || 'Developer Portfolio'}</h1>
+        {profile.title && <p className={styles.title}>{profile.title}</p>}
+        
+        <div className={styles.socialLinks}>
+          {renderLink(profile.github, 'GitHub')}
+          {renderLink(profile.linkedin, 'LinkedIn')}
+          {renderLink(`mailto:${profile.email}`, 'Email')}
+          {renderLink(profile.twitter, 'Twitter')}
         </div>
       </header>
+      
+      {/* --- Bio Section --- */}
+      <div className={styles.bioSection}>
+        <h2 className={styles.sectionTitle}>About Me</h2>
+        <p className={styles.bio}>
+          {profile.bio || "This developer hasn't added a bio yet. Check out their projects below!"}
+        </p>
+      </div>
 
-      {/* 2. Projects Section */}
-      {projects.length > 0 && (
-        <section style={projectsSectionStyle}>
-          <h3>Featured Projects</h3>
-          <div style={projectGridStyle}>
-            {projects.map(p => (
-              <div key={p.id} style={projectCardStyle}>
-                <h4>{p.title}</h4>
-                <p>{p.description}</p>
-                <div style={{ marginTop: '15px' }}>
-                    <a href={p.github} target="_blank" rel="noopener noreferrer" style={projectLinkStyle}>View Code on GitHub</a>
-                    {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" style={projectLinkStyle}> | Live Demo</a>}
-                </div>
+      {/* --- Projects Section --- */}
+      <h2 className={styles.sectionTitle}>Featured Projects</h2>
+      <div className={styles.projectsGrid}>
+        {projects.length > 0 ? (
+          projects.map(project => (
+            <div key={project.id} className={styles.projectCard}>
+              <h3 className={styles.projectName}>{project.title}</h3>
+              <p className={styles.projectDescription}>{project.description}</p>
+              
+              <div className={styles.projectLinks}>
+                <a 
+                  href={project.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={`${styles.projectLink} ${styles.githubLink}`}
+                >
+                  View Code (GitHub)
+                </a>
+                {project.demo && (
+                  <a 
+                    href={project.demo} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`${styles.projectLink} ${styles.demoLink}`}
+                  >
+                    Live Demo
+                  </a>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <footer style={footerStyle}>
-        <p>&copy; {new Date().getFullYear()} {profile.name}. Built with the Portfolio Builder.</p>
+            </div>
+          ))
+        ) : (
+          <p className={styles.message} style={{ gridColumn: '1 / -1' }}>
+            No projects have been added yet.
+          </p>
+        )}
+      </div>
+      
+      <footer className={styles.message} style={{ marginTop: '100px', fontSize: '1rem' }}>
+          Portfolio
       </footer>
     </div>
   );
 };
-
-// --- Styling Variables (for reference) ---
-const portfolioContainerStyle = { padding: '40px', fontFamily: 'Arial, sans-serif' };
-const headerStyle = { textAlign: 'center', padding: '40px', backgroundColor: '#f0f8ff', borderRadius: '8px' };
-const socialLinksStyle = { marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '20px' };
-const projectsSectionStyle = { marginTop: '50px', padding: '20px' };
-const projectGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px', marginTop: '20px' };
-const projectCardStyle = { border: '1px solid #ccc', padding: '20px', borderRadius: '6px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' };
-const footerStyle = { textAlign: 'center', marginTop: '50px', color: '#888', borderTop: '1px solid #eee', paddingTop: '20px' };
-const projectLinkStyle = { color: '#007bff', textDecoration: 'none' };
 
 export default PortfolioView;

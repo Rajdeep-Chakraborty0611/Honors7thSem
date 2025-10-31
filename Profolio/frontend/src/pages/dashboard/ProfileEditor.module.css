@@ -1,0 +1,99 @@
+@import url("../../styles/theme.css");
+
+.editorContainer {
+    padding: 30px;
+    background-color: var(--color-secondary-dark);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border-dark);
+}
+
+.title {
+    font-size: 2rem;
+    color: var(--color-accent-blue);
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: var(--color-text-muted);
+    margin-bottom: 25px;
+}
+
+/* --- Form Grid Layout --- */
+.profileForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for desktop */
+    gap: 25px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.formLabel {
+    color: var(--color-text-light);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.formInput, .formTextarea {
+    padding: 12px;
+    background-color: var(--color-primary-dark);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    color: var(--color-text-light);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formInput:focus, .formTextarea:focus {
+    outline: none;
+    border-color: var(--color-accent-blue);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.formTextarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.saveButtonContainer {
+    grid-column: 1 / -1; /* Span across both columns */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.saveButton {
+    composes: button-primary;
+    background-color: var(--color-accent-green); /* Use green for save/success */
+    min-width: 200px;
+}
+
+.saveButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.message {
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+.success {
+    color: var(--color-accent-green);
+}
+
+.error {
+    color: var(--color-accent-red);
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 768px) {
+    .profileForm {
+        grid-template-columns: 1fr; /* Single column on mobile */
+    }
+}

@@ -1,0 +1,164 @@
+@import url("../../styles/theme.css");
+
+.managerContainer {
+    padding: 30px;
+    background-color: var(--color-secondary-dark);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border-dark);
+}
+
+.title {
+    font-size: 2rem;
+    color: var(--color-accent-blue);
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: var(--color-text-muted);
+    margin-bottom: 25px;
+}
+
+/* --- Project Form Section (New/Edit) --- */
+.formSection {
+    background-color: var(--color-primary-dark);
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-dark);
+    margin-bottom: 40px;
+}
+
+.formTitle {
+    color: var(--color-text-light);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.projectForm {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on large screens */
+    gap: 15px;
+}
+
+.formInput, .formTextarea {
+    padding: 12px;
+    background-color: #0f172a; /* Darker input background */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    color: var(--color-text-light);
+    font-size: 1rem;
+}
+.formTextarea {
+    grid-column: 1 / -1; /* Description spans full width */
+    min-height: 80px;
+    resize: vertical;
+}
+
+.buttonGroup {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.addButton {
+    composes: button-primary;
+    background-color: var(--color-accent-blue);
+    flex-grow: 1;
+}
+
+.cancelButton {
+    composes: button-primary;
+    background-color: #64748b; /* Gray/Slate color */
+    flex-grow: 1;
+}
+
+/* --- Project List --- */
+.listTitle {
+    font-size: 1.8rem;
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+}
+
+.projectGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.projectCard {
+    background-color: var(--color-primary-dark);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--color-border-dark);
+    transition: border-color 0.2s;
+}
+.projectCard:hover {
+    border-color: var(--color-accent-blue);
+}
+
+.cardName {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    margin-bottom: 5px;
+}
+
+.cardDescription {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.actionLinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.actionLink, .actionButton {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.actionLink:hover, .actionButton:hover {
+    opacity: 0.8;
+}
+
+.githubButton {
+    background-color: #000;
+    color: var(--color-text-light);
+}
+
+.demoButton {
+    background-color: var(--color-accent-blue);
+    color: var(--color-text-light);
+}
+
+.editButton {
+    background-color: #f59e0b; /* Amber/Yellow for Edit */
+    color: var(--color-text-light);
+    border: none;
+}
+
+.deleteButton {
+    background-color: var(--color-accent-red);
+    color: var(--color-text-light);
+    border: none;
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 600px) {
+    .projectForm {
+        grid-template-columns: 1fr;
+    }
+    .buttonGroup {
+        flex-direction: column;
+    }
+}

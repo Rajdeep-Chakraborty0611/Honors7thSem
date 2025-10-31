@@ -1,0 +1,83 @@
+.dashboardContainer {
+    padding: 20px;
+    background-color: var(--color-secondary-dark);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border-dark);
+}
+
+.greeting {
+    font-size: 2.5rem;
+    color: var(--color-accent-blue);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+/* --- Action Cards --- */
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.actionCard {
+    background-color: var(--color-primary-dark);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    border: 1px solid var(--color-border-dark);
+}
+
+.actionCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-accent-blue);
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    margin-bottom: 5px;
+}
+
+.cardDescription {
+    color: var(--color-text-muted);
+}
+
+/* --- Public Link Section --- */
+.linkSection {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border-dark);
+    text-align: center;
+}
+
+.publicLinkText {
+    font-size: 1.2rem;
+    color: var(--color-text-light);
+    margin-bottom: 15px;
+}
+
+.publicLinkUrl {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: var(--color-primary-dark);
+    border-radius: 6px;
+    color: var(--color-accent-blue);
+    text-decoration: none;
+    font-family: monospace;
+    font-size: 1.1rem;
+    transition: background-color 0.2s;
+}
+.publicLinkUrl:hover {
+    background-color: #0b111d;
+}

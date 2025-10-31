@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { updateProfile } from '../../services/firestoreService'; // 👈 Import update function
+import { updateProfile } from '../../services/firestoreService';
+import styles from './ProfileEditor.module.css'; // 👈 Import CSS Module
 
 const ProfileEditor = () => {
   const { currentUser, userProfile, updateContextProfile } = useAuth();
@@ -8,13 +9,14 @@ const ProfileEditor = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
-  // 1. Load data from context (Firestore) when component mounts
   useEffect(() => {
     if (userProfile) {
-      setProfileData(userProfile);
+      setProfileData({ 
+        ...userProfile,
+        username: userProfile.username || currentUser.email.split('@')[0],
+      });
     }
-  }, [userProfile]);
-
+  }, [userProfile, currentUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,18 +29,14 @@ const ProfileEditor = () => {
     setMessage('');
     
     if (!currentUser) {
-        setMessage('Error: Not logged in.');
+        setMessage('❌ Error: Not logged in.');
         setIsSubmitting(false);
         return;
     }
 
     try {
-        // 2. Call the Firestore service to save the data
         await updateProfile(currentUser.uid, profileData);
-        
-        // 3. Update the global context state with the new data
         updateContextProfile(profileData);
-        
         setMessage('✅ Profile saved successfully!');
     } catch (error) {
         console.error("Error saving profile:", error);
@@ -48,58 +46,65 @@ const ProfileEditor = () => {
     }
   };
   
-  // ... (Styling variables and return JSX structure are the same as before)
-  
-  if (!userProfile) return <h1 style={{ textAlign: 'center', padding: '100px' }}>Loading Profile...</h1>;
+  if (!userProfile) return <h1 className="text-center text-gray-400 p-20">Loading Profile...</h1>;
 
-  // The form structure remains the same, only the logic is updated
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
-      <h1>⚙️ Edit Your Profile Information</h1>
-      <p style={{ color: '#666', marginBottom: '30px' }}>This information will form the main sections of your public portfolio.</p>
+    <div className={styles.editorContainer}>
+      <h1 className={styles.title}>Edit Your Profile</h1>
+      <p className={styles.subtitle}>
+        Provide the details that will be displayed on your public portfolio.
+      </p>
 
-      <form onSubmit={handleSubmit} /* ... (form styling) ... */>
+      <form onSubmit={handleSubmit} className={styles.profileForm}>
         
-        {/* Input Fields (Map over profileData keys for general fields) */}
         {Object.keys(profileData)
-            .filter(key => !['uid', 'email', 'createdAt'].includes(key)) // Filter out internal fields
+            .filter(key => !['uid', 'email', 'createdAt'].includes(key))
             .map(key => (
-          <div key={key} /* ... (input group styling) ... */>
-            <label /* ... (label styling) ... */>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</label>
+          <div key={key} className={styles.formGroup}>
+            <label htmlFor={key} className={styles.formLabel}>
+                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:
+            </label>
             {key === 'bio' ? (
                 <textarea
-                    name={key}
-                    value={profileData[key]}
-                    onChange={handleChange}
-                    placeholder={`Enter your ${key}...`}
-                    style={{ /* ... (input style) ... */ height: '100px' }}
+                    id={key}
+                    name={key} 
+                    value={profileData[key] || ''} 
+                    onChange={handleChange} 
+                    className={styles.formTextarea}
                 />
             ) : (
                 <input 
                     type="text" 
+                    id={key}
                     name={key} 
-                    value={profileData[key]} 
+                    value={profileData[key] || ''} 
                     onChange={handleChange} 
-                    placeholder={`Enter your ${key}...`}
-                    style={{ /* ... (input style) ... */ }}
+                    className={styles.formInput}
+                    // Prevent username editing unless you implement complex logic
+                    readOnly={key === 'username'} 
+                    placeholder={key === 'username' ? 'Username cannot be changed' : ''}
                 />
             )}
           </div>
         ))}
 
-        <button type="submit" disabled={isSubmitting} /* ... (button styling) ... */>
-          {isSubmitting ? 'Saving...' : 'Save Profile'}
-        </button>
-        {message && <p style={{ marginTop: '15px', color: message.startsWith('❌') ? 'red' : 'green' }}>{message}</p>}
+        <div className={styles.saveButtonContainer}>
+            <button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className={styles.saveButton}
+            >
+              {isSubmitting ? 'Saving...' : 'Save Profile'}
+            </button>
+            {message && (
+                <p className={`${styles.message} ${message.startsWith('❌') ? styles.error : styles.success}`}>
+                    {message}
+                </p>
+            )}
+        </div>
       </form>
     </div>
   );
 };
-
-const formStyle = { display: 'grid', gridTemplateColumns: '1fr', gap: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' };
-const inputGroupStyle = { display: 'flex', flexDirection: 'column' };
-const labelStyle = { marginBottom: '5px', fontWeight: 'bold' };
-const inputStyle = { padding: '10px', borderRadius: '4px', border: '1px solid #ccc' };
-const buttonStyle = { padding: '12px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' };
 
 export default ProfileEditor;

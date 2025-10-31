@@ -1,0 +1,111 @@
+@import url("../../styles/theme.css");
+
+/* --- Base Layout --- */
+.dashboardLayout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-primary-dark);
+    color: var(--color-text-light);
+}
+
+/* --- Sidebar (Inspired by dark, professional console panels) --- */
+.sidebar {
+    width: 250px;
+    background-color: var(--color-secondary-dark);
+    padding: 30px 20px;
+    
+    display: flex; /* CRITICAL: Must be a flex container */
+    flex-direction: column; /* CRITICAL: Stack items vertically */
+    justify-content: space-between; /* CRITICAL: Pushes first item (navWrapper) to top, last item (Logout) to bottom */
+    
+    border-right: 1px solid var(--color-border-dark);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-accent-blue);
+    margin-bottom: 30px;
+}
+
+/* --- Navigation Links --- */
+.navItem {
+    margin-bottom: 12px;
+}
+
+.navWrapper {
+    flex-grow: 1; /* CRITICAL: This element takes all remaining vertical space */
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 20px; /* Space above logout button */
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-radius: 6px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.navLink:hover {
+    background-color: #334155; /* A slightly lighter secondary dark */
+    color: var(--color-text-light);
+}
+
+.navLinkActive {
+    composes: navLink;
+    background-color: var(--color-accent-blue); /* Highlight active link */
+    color: var(--color-text-light);
+    font-weight: 600;
+}
+.navLinkActive:hover {
+    background-color: var(--color-accent-blue); /* Keep color on hover for active */
+}
+
+/* --- Logout Button --- */
+.logoutButton {
+    composes: button-primary;
+    background-color: var(--color-accent-red);
+    margin-top: auto; /* Fallback for older browsers, although justify-content should handle it */
+    min-width: 100%; /* Make button fill sidebar width */
+}
+.logoutButton:hover {
+    background-color: #c53030;
+}
+.publicLink {
+    composes: button-primary;
+    background-color: #3b82f6; /* Use accent blue for the public link CTA */
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* --- Main Content --- */
+.mainContent {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+
+
+/* --- Responsive adjustments (Optional but professional) --- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .navLink {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+    .mainContent {
+        padding: 20px;
+    }
+}

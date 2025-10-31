@@ -1,0 +1,142 @@
+.portfolioContainer {
+    padding: 60px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--color-primary-dark);
+    min-height: 100vh;
+}
+
+/* --- Hero / Header Section --- */
+.header {
+    margin-bottom: 60px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--color-border-dark);
+    text-align: center;
+}
+
+.name {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--color-text-light);
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--color-accent-blue);
+    margin-bottom: 20px;
+}
+
+.socialLinks {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.socialLink {
+    color: var(--color-text-muted);
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.socialLink:hover {
+    color: var(--color-accent-blue);
+}
+
+/* --- Bio and Section Titles --- */
+.sectionTitle {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-border-dark);
+    text-align: center;
+}
+
+.bio {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    margin-bottom: 60px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+/* --- Projects Grid --- */
+.projectsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.projectCard {
+    background-color: var(--color-secondary-dark);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--color-border-dark);
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.projectCard:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-accent-blue);
+}
+
+.projectName {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    margin-bottom: 10px;
+}
+
+.projectDescription {
+    color: var(--color-text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.projectLinks {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.projectLink {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.githubLink {
+    background-color: #000;
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border-dark);
+}
+
+.demoLink {
+    background-color: var(--color-accent-blue);
+    color: var(--color-text-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .name {
+        font-size: 3rem;
+    }
+    .title {
+        font-size: 1.5rem;
+    }
+    .projectsGrid {
+        grid-template-columns: 1fr;
+    }
+}

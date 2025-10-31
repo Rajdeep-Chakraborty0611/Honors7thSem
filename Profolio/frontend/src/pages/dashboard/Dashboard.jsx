@@ -1,55 +1,63 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import styles from './Dashboard.module.css'; // 👈 Import CSS Module
 
 const Dashboard = () => {
-  const { currentUser, logout } = useAuth();
+  const { userProfile } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/'); // Redirect to landing page
-  };
+  const userNameDisplay = userProfile?.name || userProfile?.username || 'User';
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>👋 Welcome to your Dashboard, {currentUser?.username || 'User'}!</h1>
-      <p>This is your control panel for building your portfolio.</p>
+    <div className={styles.dashboardContainer}>
+      <h1 className={styles.greeting}>👋 Hello, {userNameDisplay}</h1>
+      <p className={styles.subtitle}>
+        Welcome to your console. Quickly access the main portfolio management areas below.
+      </p>
       
-      <div style={{ marginTop: '30px', display: 'flex', gap: '20px' }}>
-        <button 
-          onClick={() => navigate('/dashboard/profile')}
-          style={buttonStyle}
+      <div className={styles.cardGrid}>
+        
+        {/* Card for Profile Editing */}
+        <div 
+          onClick={() => navigate('/dashboard/profile')} 
+          className={styles.actionCard}
         >
-          Edit Profile Information
-        </button>
-        <button 
-          onClick={() => navigate('/dashboard/projects')}
-          style={buttonStyle}
+          <h3 className={styles.cardTitle}>Edit Profile Information</h3>
+          <p className={styles.cardDescription}>
+            Update your bio, title, and social media links.
+          </p>
+        </div>
+
+        {/* Card for Project Management */}
+        <div 
+          onClick={() => navigate('/dashboard/projects')} 
+          className={styles.actionCard}
         >
-          Manage Projects
-        </button>
+          <h3 className={styles.cardTitle}>Manage Projects</h3>
+          <p className={styles.cardDescription}>
+            Add, edit, and link your projects, including GitHub repositories.
+          </p>
+        </div>
       </div>
 
-      <button 
-        onClick={handleLogout} 
-        style={{ ...buttonStyle, backgroundColor: '#dc3545', marginTop: '40px' }}
-      >
-        Logout
-      </button>
+      {userProfile?.username && (
+        <div className={styles.linkSection}>
+            <p className={styles.publicLinkText}>Your Live Portfolio Link:</p>
+            <a 
+                href={`/portfolio/${userProfile.username}`} 
+                target="_blank" 
+                className={styles.publicLinkUrl} 
+                rel="noopener noreferrer"
+            >
+                {window.location.origin}/portfolio/{userProfile.username}
+            </a>
+            <p className={styles.cardDescription} style={{ marginTop: '10px' }}>
+                Share this link with everyone to showcase your work!
+            </p>
+        </div>
+      )}
     </div>
   );
-};
-
-// Simple inline styles for demonstration
-const buttonStyle = {
-    padding: '10px 20px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
 };
 
 export default Dashboard;

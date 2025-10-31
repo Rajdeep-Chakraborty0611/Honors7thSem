@@ -1,0 +1,54 @@
+/* --- Professional Color Palette --- */
+:root {
+    /* Backgrounds */
+    --color-primary-dark: #0f172a; /* Deep Slate Blue */
+    --color-secondary-dark: #1e293b; /* Darker Blue-Gray for Cards */
+    
+    /* Text */
+    --color-text-light: #f8fafc; /* Near White */
+    --color-text-muted: #94a3b8; /* Light Gray */
+    
+    /* Accents (Vibrant colors for buttons/highlights) */
+    --color-accent-blue: #3b82f6; /* Bright Blue */
+    --color-accent-green: #22c55e; /* Success Green */
+    --color-accent-red: #ef4444; /* Error Red */
+    
+    /* Borders/Dividers */
+    --color-border-dark: #334155; 
+}
+
+/* Global Reset and Typography */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Use a modern, sans-serif font */
+    background-color: var(--color-primary-dark);
+    color: var(--color-text-light);
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+}
+
+/* Base button style */
+.button-primary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.button-primary:hover {
+    transform: translateY(-1px);
+}
+.button-accent {
+    background-color: var(--color-accent-blue);
+    color: var(--color-text-light);
+}
+.button-accent:hover {
+    background-color: #2563eb;
+}
