@@ -13,20 +13,37 @@ export const ensureUserProfileExists = async (user) => {
   const userSnap = await getDoc(userRef);
 
   if (!userSnap.exists()) {
-    // If the user is new, create a default profile document
+    // If the user is new, create a detailed default profile document
     await setDoc(userRef, {
       uid: user.uid,
       email: user.email,
-      username: user.displayName.toLowerCase().replace(/\s/g, ''), // Default username from name
+      username: user.displayName.toLowerCase().replace(/\s/g, ''),
+      
+      // BASIC INFO
       name: user.displayName,
       title: 'Aspiring Developer',
+      tagline: 'Building digital experiences with modern web technologies.',
       bio: `Hello! I'm ${user.displayName}, and this is my portfolio.`,
-      github: '',
+      location: 'City, Country',
+      
+      // CONTACT / SOCIAL
+      phone: '',
+      github: `https://github.com/${user.displayName.toLowerCase().replace(/\s/g, '-')}`,
       linkedin: '',
+      twitter: '',
+      
+      // SKILLS (Array of strings for quick display)
+      skills: ['React', 'JavaScript', 'HTML/CSS', 'Firebase'],
+
+      // EDUCATION (Array of objects)
+      education: [],
+      
+      // EXPERIENCE (Array of objects)
+      experience: [],
+      
       createdAt: new Date(),
     });
   }
-  // Return the fetched or newly created profile data
   return (await getDoc(userRef)).data();
 };
 
@@ -102,7 +119,14 @@ export const updateProject = async (projectId, projectData) => {
   await updateDoc(projectRef, projectData);
 };
 
-// ... (Keep existing imports and functions: ensureUserProfileExists, updateProfile, etc.)
+/**
+ * Deletes a project.
+ * @param {string} projectId - The Firestore document ID of the project
+ */
+export const deleteProject = async (projectId) => {
+  const projectRef = doc(db, 'projects', projectId);
+  await deleteDoc(projectRef);
+};
 
 /**
  * Finds a user's profile based on their public username (used for PortfolioView).
@@ -111,7 +135,6 @@ export const updateProject = async (projectId, projectData) => {
 export const getProfileByUsername = async (username) => {
   if (!username) return null;
   
-  // Create a query to search the 'users' collection for a matching username
   const q = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
   
   const querySnapshot = await getDocs(q);
@@ -120,16 +143,7 @@ export const getProfileByUsername = async (username) => {
     return null; // User not found
   }
   
-  // Since username should be unique, we only expect one document
   const userDoc = querySnapshot.docs[0];
   
   return userDoc.data();
-};
-/**
- * Deletes a project.
- * @param {string} projectId - The Firestore document ID of the project
- */
-export const deleteProject = async (projectId) => {
-  const projectRef = doc(db, 'projects', projectId);
-  await deleteDoc(projectRef);
 };

@@ -19,11 +19,32 @@
     margin-bottom: 25px;
 }
 
+/* --- Section Styling --- */
+.section {
+    margin-bottom: 40px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: var(--color-primary-dark);
+    border: 1px solid var(--color-border-dark);
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--color-border-dark);
+    padding-bottom: 10px;
+}
+
 /* --- Form Grid Layout --- */
 .profileForm {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two columns for desktop */
     gap: 25px;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
 }
 
 .formGroup {
@@ -40,7 +61,7 @@
 
 .formInput, .formTextarea {
     padding: 12px;
-    background-color: var(--color-primary-dark);
+    background-color: #0f172a; /* Darker input background */
     border: 1px solid var(--color-border-dark);
     border-radius: 6px;
     color: var(--color-text-light);
@@ -59,17 +80,104 @@
     resize: vertical;
 }
 
+/* --- Array/Tag Input Styles (For Skills, Education, Experience) --- */
+.tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tag {
+    background-color: var(--color-accent-blue);
+    color: var(--color-text-light);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.tagButton {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.tagButton:hover {
+    color: var(--color-accent-red);
+}
+
+/* --- Dynamic Array Item (Education/Experience Card) --- */
+.arrayItemCard {
+    background-color: var(--color-secondary-dark);
+    border: 1px solid var(--color-border-dark);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.arrayItemCard h4 {
+    font-size: 1.1rem;
+    color: var(--color-accent-blue);
+    margin-bottom: 5px;
+}
+
+.arrayItemControls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+.removeArrayButton {
+    background-color: var(--color-accent-red);
+    color: var(--color-text-light);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.removeArrayButton:hover {
+    background-color: #c53030;
+}
+
+.arrayFormGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed var(--color-border-dark);
+}
+
+.arrayFormGrid .fullWidth {
+    grid-column: 1 / -1;
+}
+
+.addArrayButton {
+    composes: button-primary;
+    background-color: var(--color-accent-green);
+    grid-column: 1 / -1;
+    margin-top: 10px;
+}
+
+/* --- Save Button --- */
 .saveButtonContainer {
-    grid-column: 1 / -1; /* Span across both columns */
+    grid-column: 1 / -1; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 15px;
+    margin-top: 30px;
 }
 
 .saveButton {
     composes: button-primary;
-    background-color: var(--color-accent-green); /* Use green for save/success */
+    background-color: var(--color-accent-green);
     min-width: 200px;
 }
 
@@ -93,7 +201,7 @@
 
 /* --- Responsive adjustments --- */
 @media (max-width: 768px) {
-    .profileForm {
-        grid-template-columns: 1fr; /* Single column on mobile */
+    .profileForm, .arrayFormGrid {
+        grid-template-columns: 1fr; 
     }
 }

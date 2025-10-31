@@ -1,9 +1,11 @@
+/* --- Base Layout & Container --- */
 .portfolioContainer {
     padding: 60px 40px;
     max-width: 1200px;
     margin: 0 auto;
     background-color: var(--color-primary-dark);
     min-height: 100vh;
+    box-sizing: border-box; /* Ensure padding doesn't affect total width */
 }
 
 /* --- Hero / Header Section --- */
@@ -15,24 +17,39 @@
 }
 
 .name {
-    font-size: 4rem;
-    font-weight: 800;
+    font-size: 4.5rem; /* Larger and more impactful */
+    font-weight: 900; /* Extra bold */
     color: var(--color-text-light);
-    line-height: 1.1;
+    line-height: 1;
     margin-bottom: 5px;
 }
 
 .title {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 500;
     color: var(--color-accent-blue);
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
+.bioSection {
+    margin-bottom: 60px;
+}
+
+.bio {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* --- Social Links --- */
 .socialLinks {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 30px;
+    margin-top: 25px;
 }
 
 .socialLink {
@@ -40,32 +57,36 @@
     font-size: 1.1rem;
     text-decoration: none;
     transition: color 0.2s;
+    display: flex; /* For potential icons */
+    align-items: center;
+    gap: 5px;
 }
 
 .socialLink:hover {
     color: var(--color-accent-blue);
 }
 
-/* --- Bio and Section Titles --- */
+/* --- Section Titles --- */
 .sectionTitle {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-text-light);
-    margin-bottom: 25px;
+    margin-bottom: 40px;
+    text-align: center;
+    position: relative;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-border-dark);
-    text-align: center;
 }
-
-.bio {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    color: var(--color-text-muted);
-    margin-bottom: 60px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
+/* Subtle underline accent for section title */
+.sectionTitle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background-color: var(--color-accent-blue);
+    border-radius: 2px;
 }
 
 /* --- Projects Grid --- */
@@ -73,21 +94,22 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 30px;
-    margin-top: 30px;
+    margin-bottom: 60px;
 }
 
 .projectCard {
     background-color: var(--color-secondary-dark);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid var(--color-border-dark);
     transition: transform 0.3s, border-color 0.3s;
 }
 
 .projectCard:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px); /* Lift effect */
     border-color: var(--color-accent-blue);
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
 }
 
 .projectName {
@@ -99,14 +121,14 @@
 
 .projectDescription {
     color: var(--color-text-muted);
-    margin-bottom: 20px;
-    line-height: 1.5;
+    margin-bottom: 25px;
+    line-height: 1.6;
 }
 
 .projectLinks {
     display: flex;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-top: 20px;
 }
 
 .projectLink {
@@ -114,21 +136,39 @@
     border-radius: 6px;
     font-weight: 600;
     text-decoration: none;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background-color 0.2s;
+    font-size: 0.95rem;
 }
 
 .githubLink {
     background-color: #000;
     color: var(--color-text-light);
-    border: 1px solid var(--color-border-dark);
+    border: 1px solid #64748b; /* Subtle outline */
+}
+.githubLink:hover {
+    background-color: #1f2937;
+    border-color: #64748b;
 }
 
 .demoLink {
     background-color: var(--color-accent-blue);
     color: var(--color-text-light);
 }
+.demoLink:hover {
+    background-color: #2563eb;
+}
 
-/* Responsive adjustments */
+/* --- Footer --- */
+.footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--color-border-dark);
+    text-align: center;
+}
+
+/* --- Responsive adjustments --- */
 @media (max-width: 768px) {
     .name {
         font-size: 3rem;
@@ -139,4 +179,85 @@
     .projectsGrid {
         grid-template-columns: 1fr;
     }
+    .portfolioContainer {
+        padding: 30px 15px;
+    }
+}
+
+/* Add these styles to your existing PortfolioView.module.css file */
+
+.tagline {
+    font-size: 1.5rem;
+    color: var(--color-text-muted);
+    font-weight: 300;
+    margin-bottom: 25px;
+}
+
+/* --- SKILLS Section Styles --- */
+.skillSection {
+    margin-bottom: 60px;
+    padding: 20px 0;
+}
+
+.tagListContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.skillTag {
+    background-color: var(--color-secondary-dark);
+    color: var(--color-accent-blue);
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 1rem;
+    border: 1px solid var(--color-border-dark);
+    transition: background-color 0.2s;
+}
+
+.skillTag:hover {
+    background-color: #1e3a8a; /* Darker blue on hover */
+}
+
+/* --- EXPERIENCE & EDUCATION Section Styles --- */
+.experienceSection, .educationSection {
+    margin-bottom: 60px;
+    padding: 20px 0;
+}
+
+.experienceCard, .educationCard {
+    background-color: var(--color-secondary-dark);
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 5px solid var(--color-accent-blue); /* Visual accent bar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.experienceCard h3, .educationCard h3 {
+    font-size: 1.3rem;
+    color: var(--color-text-light);
+    margin-bottom: 5px;
+}
+
+.educationCard h4 {
+    font-size: 1rem;
+    color: var(--color-accent-green); /* Use green for institutional highlight */
+    margin-top: 5px;
+}
+
+.durationText {
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.descriptionText {
+    color: var(--color-text-light);
+    line-height: 1.6;
 }
