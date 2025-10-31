@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { auth, googleProvider } from '../firebaseConfig'; // 👈 Import Firebase Auth
 
 // 1. Create the Context
 const AuthContext = createContext();
@@ -10,77 +12,52 @@ export const useAuth = () => {
 
 // 3. Provider Component
 export const AuthProvider = ({ children }) => {
-  // Check local storage for a token or user info on mount
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // In a real app, this effect would check local storage for a token
-  // and validate it with the backend to set the initial user state.
+  // --- Effect to monitor Firebase Authentication State ---
   useEffect(() => {
-    // Mock check: Check if a user is "logged in" based on a mock ID
-    const mockUserId = localStorage.getItem('user_id');
-    if (mockUserId) {
-      // In production, you would fetch user details based on the ID/Token
-      setCurrentUser({ id: mockUserId, username: 'mockuser', email: 'test@example.com' });
-    }
-    setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      // Firebase automatically updates 'user' when they log in or out
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    // Clean up subscription on unmount
+    return unsubscribe;
   }, []);
 
-  // --- Mock Authentication Functions ---
+  // --- Authentication Functions using Firebase ---
 
-  const login = async (email, password) => {
-    // 💡 Backend Logic Placeholder:
-    // 1. Send credentials to backend API.
-    // 2. Receive a JWT token and user data on success.
-    // 3. Store the token/user_id in localStorage.
-    
-    // Mock Success:
-    console.log(`Mock Login successful for ${email}`);
-    const mockId = 'u-12345';
-    localStorage.setItem('user_id', mockId);
-    setCurrentUser({ id: mockId, username: 'newuser', email: email });
-    return true; // Indicate success
+  const googleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // The user object is automatically set by onAuthStateChanged
+      const user = result.user;
+      console.log("Firebase Google Login successful:", user);
+      
+      // 💡 Next Step: Add logic here to check/create user data in Firestore
+      
+      return user; 
+    } catch (error) {
+      console.error("Firebase Google Login Failed:", error.code, error.message);
+      // Handle specific errors (e.g., account exists with different credential)
+      return null;
+    }
   };
 
   const logout = () => {
-    // 💡 Backend Logic Placeholder:
-    // 1. Optionally hit a backend logout endpoint.
-    // 2. Clear token/user_id from localStorage.
-    localStorage.removeItem('user_id');
-    setCurrentUser(null);
-  };
-
-  const googleLogin = async (credential) => {
-    // 💡 Backend Logic Placeholder:
-    // 1. Send the 'credential' (Google JWT ID Token) to your backend API.
-    // 2. The backend verifies the token, creates/updates the user in the database.
-    // 3. Backend sends back its own JWT token and user data.
-    
-    console.log("Google Credential Received:", credential);
-
-    // MOCK Backend response (in a real app, this is where you'd fetch data)
-    try {
-      // Simulate API call delay
-      // await new Promise(resolve => setTimeout(resolve, 1000)); 
-
-      // MOCK Success:
-      const mockId = 'google-u-45678';
-      localStorage.setItem('user_id', mockId); // Store the local app's user ID
-      setCurrentUser({ id: mockId, username: 'googleuser', email: 'google@example.com' });
-      return true; // Indicate success
-    } catch (error) {
-      console.error("Authentication failed:", error);
-      return false; // Indicate failure
-    }
+    // Firebase function to sign out
+    return signOut(auth);
+    // The state is automatically updated by onAuthStateChanged
   };
 
   const value = {
     currentUser,
     loading,
-    login: googleLogin, // We will use the Google login primarily
+    googleLogin,
     logout,
     isAuthenticated: !!currentUser,
-    googleLogin, // Export the function explicitly
   };
 
   return (
@@ -89,5 +66,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;
