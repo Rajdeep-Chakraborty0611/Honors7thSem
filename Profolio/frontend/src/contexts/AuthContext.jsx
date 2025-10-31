@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from '../firebaseConfig'; // 👈 Import Firebase Auth
+import { auth, googleProvider } from '../firebaseConfig';
+import { ensureUserProfileExists, getUserProfile } from '../services/firestoreService'; // 👈 Import new functions // 👈 Import Firebase Auth
 
 // 1. Create the Context
 const AuthContext = createContext();
@@ -10,53 +11,64 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-// 3. Provider Component
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null); // 👈 New state for profile data
   const [loading, setLoading] = useState(true);
 
-  // --- Effect to monitor Firebase Authentication State ---
+  // --- Effect to monitor Firebase Authentication State and load profile ---
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      // Firebase automatically updates 'user' when they log in or out
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      
+      if (user) {
+        // If user logs in, fetch their persistent profile data from Firestore
+        const profile = await getUserProfile(user.uid);
+        setUserProfile(profile);
+      } else {
+        // If user logs out
+        setUserProfile(null);
+      }
       setLoading(false);
     });
-
-    // Clean up subscription on unmount
     return unsubscribe;
   }, []);
 
   // --- Authentication Functions using Firebase ---
-
   const googleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // The user object is automatically set by onAuthStateChanged
       const user = result.user;
-      console.log("Firebase Google Login successful:", user);
       
-      // 💡 Next Step: Add logic here to check/create user data in Firestore
-      
+      // CRITICAL STEP: Check/create user profile in Firestore
+      const profile = await ensureUserProfileExists(user);
+      setUserProfile(profile);
+
       return user; 
     } catch (error) {
       console.error("Firebase Google Login Failed:", error.code, error.message);
-      // Handle specific errors (e.g., account exists with different credential)
       return null;
     }
   };
 
   const logout = () => {
-    // Firebase function to sign out
+    setUserProfile(null); // Clear profile locally on logout
     return signOut(auth);
-    // The state is automatically updated by onAuthStateChanged
   };
+  
+  // --- New function to update profile and refresh context state ---
+  const updateContextProfile = (newProfileData) => {
+    setUserProfile(prev => ({ ...prev, ...newProfileData }));
+  };
+
 
   const value = {
     currentUser,
+    userProfile, // 👈 Export profile data
     loading,
     googleLogin,
     logout,
+    updateContextProfile, // 👈 Export update function
     isAuthenticated: !!currentUser,
   };
 

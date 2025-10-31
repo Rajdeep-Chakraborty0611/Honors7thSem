@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-// Note: We need a UserContext later to store persistent user data, 
-// but for now, we'll use local state.
+import { updateProfile } from '../../services/firestoreService'; // 👈 Import update function
 
 const ProfileEditor = () => {
-  const { currentUser } = useAuth();
-  const [profileData, setProfileData] = useState({
-    name: currentUser?.username || '',
-    title: 'Software Developer', // Placeholder
-    bio: '',
-    github: '',
-    linkedin: '',
-  });
-
+  const { currentUser, userProfile, updateContextProfile } = useAuth();
+  const [profileData, setProfileData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+
+  // 1. Load data from context (Firestore) when component mounts
+  useEffect(() => {
+    if (userProfile) {
+      setProfileData(userProfile);
+    }
+  }, [userProfile]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,45 +25,72 @@ const ProfileEditor = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
-
-    // 💡 Backend Logic Placeholder:
-    // 1. Send profileData to your backend API (e.g., PUT /api/users/:id/profile)
-    // 2. Await the response (user data saved in database)
     
-    console.log("Submitting Profile Data:", profileData);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
+    if (!currentUser) {
+        setMessage('Error: Not logged in.');
+        setIsSubmitting(false);
+        return;
+    }
 
-    setIsSubmitting(false);
-    setMessage('✅ Profile saved successfully! (Mock API Call)');
-    // In a real app, update the global UserContext here.
+    try {
+        // 2. Call the Firestore service to save the data
+        await updateProfile(currentUser.uid, profileData);
+        
+        // 3. Update the global context state with the new data
+        updateContextProfile(profileData);
+        
+        setMessage('✅ Profile saved successfully!');
+    } catch (error) {
+        console.error("Error saving profile:", error);
+        setMessage(`❌ Error saving profile: ${error.message}`);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
+  
+  // ... (Styling variables and return JSX structure are the same as before)
+  
+  if (!userProfile) return <h1 style={{ textAlign: 'center', padding: '100px' }}>Loading Profile...</h1>;
 
+  // The form structure remains the same, only the logic is updated
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
       <h1>⚙️ Edit Your Profile Information</h1>
       <p style={{ color: '#666', marginBottom: '30px' }}>This information will form the main sections of your public portfolio.</p>
 
-      <form onSubmit={handleSubmit} style={formStyle}>
+      <form onSubmit={handleSubmit} /* ... (form styling) ... */>
         
-        {/* Input Fields */}
-        {Object.keys(profileData).map(key => (
-          <div key={key} style={inputGroupStyle}>
-            <label style={labelStyle}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</label>
-            <input 
-              type="text" 
-              name={key} 
-              value={profileData[key]} 
-              onChange={handleChange} 
-              placeholder={`Enter your ${key}...`}
-              style={inputStyle}
-            />
+        {/* Input Fields (Map over profileData keys for general fields) */}
+        {Object.keys(profileData)
+            .filter(key => !['uid', 'email', 'createdAt'].includes(key)) // Filter out internal fields
+            .map(key => (
+          <div key={key} /* ... (input group styling) ... */>
+            <label /* ... (label styling) ... */>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</label>
+            {key === 'bio' ? (
+                <textarea
+                    name={key}
+                    value={profileData[key]}
+                    onChange={handleChange}
+                    placeholder={`Enter your ${key}...`}
+                    style={{ /* ... (input style) ... */ height: '100px' }}
+                />
+            ) : (
+                <input 
+                    type="text" 
+                    name={key} 
+                    value={profileData[key]} 
+                    onChange={handleChange} 
+                    placeholder={`Enter your ${key}...`}
+                    style={{ /* ... (input style) ... */ }}
+                />
+            )}
           </div>
         ))}
 
-        <button type="submit" disabled={isSubmitting} style={buttonStyle}>
+        <button type="submit" disabled={isSubmitting} /* ... (button styling) ... */>
           {isSubmitting ? 'Saving...' : 'Save Profile'}
         </button>
-        {message && <p style={{ marginTop: '15px', color: 'green' }}>{message}</p>}
+        {message && <p style={{ marginTop: '15px', color: message.startsWith('❌') ? 'red' : 'green' }}>{message}</p>}
       </form>
     </div>
   );

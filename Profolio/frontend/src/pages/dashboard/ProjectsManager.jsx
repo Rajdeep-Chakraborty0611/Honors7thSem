@@ -1,66 +1,167 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { getProjects, addProject, updateProject, deleteProject } from '../../services/firestoreService'; // 👈 Import CRUD functions
 
-// Mock initial project data
-const initialProjects = [
-  { id: 1, title: 'Portfolio Builder App', description: 'A platform for developers to generate their portfolio.', github: 'https://github.com/user/portfolio-builder', demo: 'https://live.app' },
-  { id: 2, title: 'E-commerce API', description: 'Backend service for an online store using Node.js.', github: 'https://github.com/user/ecommerce-api', demo: null },
-];
+const initialProjectState = { 
+  title: '', 
+  description: '', 
+  github: '', // Required field
+  demo: '' 
+};
 
 const ProjectsManager = () => {
-  const [projects, setProjects] = useState(initialProjects);
-  const [newProject, setNewProject] = useState({ title: '', description: '', github: '', demo: '' });
+  const { currentUser } = useAuth();
+  const [projects, setProjects] = useState([]);
+  const [currentProject, setCurrentProject] = useState(initialProjectState);
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleCreateOrUpdate = (e) => {
+  // --- 1. Fetch Projects on Load ---
+  useEffect(() => {
+    const fetchUserProjects = async () => {
+      if (currentUser?.uid) {
+        try {
+          setLoading(true);
+          const userProjects = await getProjects(currentUser.uid);
+          setProjects(userProjects);
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchUserProjects();
+  }, [currentUser]); // Re-fetch when user object changes
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentProject(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateOrUpdate = async (e) => {
     e.preventDefault();
-    if (!newProject.title || !newProject.github) {
-      alert('Title and GitHub link are required.');
+    if (!currentProject.title || !currentProject.github) {
+      alert('Project Title and GitHub link are required.');
       return;
     }
 
-    if (editingId) {
-      // 💡 Update Logic Placeholder: PUT /api/projects/:id
-      setProjects(projects.map(p => p.id === editingId ? { ...newProject, id: editingId } : p));
+    try {
+      if (editingId) {
+        // --- UPDATE LOGIC ---
+        await updateProject(editingId, currentProject);
+        
+        // Update local state
+        setProjects(projects.map(p => 
+          p.id === editingId ? { ...currentProject, id: editingId } : p
+        ));
+        console.log(`Project ${editingId} updated.`);
+
+      } else {
+        // --- CREATE LOGIC ---
+        const newProjectWithId = await addProject(currentUser.uid, currentProject);
+        
+        // Update local state
+        setProjects([...projects, newProjectWithId]);
+        console.log(`New project created with ID: ${newProjectWithId.id}`);
+      }
+    } catch (error) {
+      console.error("Error saving project:", error);
+      alert("Failed to save project. Check console for details.");
+    } finally {
+      // Reset form state
       setEditingId(null);
-    } else {
-      // 💡 Create Logic Placeholder: POST /api/projects
-      const newId = Date.now(); // Mock ID generation
-      setProjects([...projects, { ...newProject, id: newId }]);
+      setCurrentProject(initialProjectState); 
     }
-    setNewProject({ title: '', description: '', github: '', demo: '' }); // Clear form
   };
 
-  const handleDelete = (id) => {
-    // 💡 Delete Logic Placeholder: DELETE /api/projects/:id
-    setProjects(projects.filter(p => p.id !== id));
+  const handleDelete = async (projectId) => {
+    if (!window.confirm("Are you sure you want to delete this project?")) return;
+    
+    try {
+      // --- DELETE LOGIC ---
+      await deleteProject(projectId);
+      
+      // Update local state
+      setProjects(projects.filter(p => p.id !== projectId));
+      console.log(`Project ${projectId} deleted.`);
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project. Check console for details.");
+    }
   };
 
   const handleEdit = (project) => {
     setEditingId(project.id);
-    setNewProject(project);
+    setCurrentProject(project);
   };
+  
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setCurrentProject(initialProjectState);
+  };
+
+  if (loading) return <h1 style={{ textAlign: 'center', padding: '100px' }}>Loading Projects...</h1>;
 
   return (
     <div style={{ padding: '20px', maxWidth: '1000px', margin: 'auto' }}>
       <h1>📂 Manage Your Projects</h1>
-      <p style={{ color: '#666', marginBottom: '30px' }}>Add, edit, and link your best work here.</p>
+      <p style={{ color: '#666', marginBottom: '30px' }}>Add, edit, and link your best work here. Changes are saved to Firestore.</p>
 
       {/* Project Form (Create/Edit) */}
       <div style={formSectionStyle}>
         <h3>{editingId ? 'Edit Project' : 'Add New Project'}</h3>
         <form onSubmit={handleCreateOrUpdate} style={projectFormStyle}>
-          {['title', 'description', 'github', 'demo'].map(field => (
-            <input
-              key={field}
-              type="text"
-              name={field}
-              placeholder={`${field.charAt(0).toUpperCase() + field.slice(1)} ${field === 'github' ? 'Repo Link (REQUIRED)' : 'Link/Details'}`}
-              value={newProject[field]}
-              onChange={(e) => setNewProject({ ...newProject, [field]: e.target.value })}
-              style={inputStyle}
-            />
-          ))}
-          <button type="submit" style={buttonStyle}>{editingId ? 'Update Project' : 'Add Project'}</button>
+          
+          {/* Input: Title */}
+          <input
+            type="text"
+            name="title"
+            placeholder="Project Title"
+            value={currentProject.title}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+          
+          {/* Input: Description */}
+          <input
+            type="text"
+            name="description"
+            placeholder="Short Description"
+            value={currentProject.description}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+
+          {/* Input: GitHub Link */}
+          <input
+            type="url"
+            name="github"
+            placeholder="GitHub Repo Link (REQUIRED)"
+            value={currentProject.github}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+          
+          {/* Input: Demo Link */}
+          <input
+            type="url"
+            name="demo"
+            placeholder="Live Demo Link (Optional)"
+            value={currentProject.demo}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+          
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit" style={buttonStyle}>{editingId ? 'Update' : 'Add'}</button>
+            {editingId && (
+              <button type="button" onClick={handleCancelEdit} style={{...buttonStyle, backgroundColor: '#6c757d'}}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -84,12 +185,14 @@ const ProjectsManager = () => {
   );
 };
 
+// ... (Styling variables from previous step)
 const formSectionStyle = { padding: '20px', border: '1px solid #007bff', borderRadius: '8px', backgroundColor: '#e6f7ff' };
-const projectFormStyle = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr) 150px', gap: '10px' };
+const projectFormStyle = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr) 2fr', gap: '10px' };
 const projectListStyle = { marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' };
 const projectCardStyle = { padding: '20px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' };
 const projectActionsStyle = { marginTop: '15px', display: 'flex', gap: '10px' };
 const actionButtonStyle = { padding: '8px 12px', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', textDecoration: 'none', fontSize: '14px' };
-// Re-using buttonStyle/inputStyle from previous component is also an option
+const inputStyle = { padding: '10px', borderRadius: '4px', border: '1px solid #ccc' };
+const buttonStyle = { padding: '12px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' };
 
 export default ProjectsManager;
