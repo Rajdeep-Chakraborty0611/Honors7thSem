@@ -10,4 +10,9 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '~slick-carousel': 'slick-carousel',
+    },
+  },
 })

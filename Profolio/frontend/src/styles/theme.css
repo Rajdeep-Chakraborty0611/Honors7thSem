@@ -1,3 +1,7 @@
+/* In your public/index.css or src/App.css */
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
 /* --- Professional Color Palette --- */
 :root {
     /* Backgrounds */

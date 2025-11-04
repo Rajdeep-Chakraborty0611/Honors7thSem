@@ -60,7 +60,7 @@ const LandingPage = () => {
 
         {/* 4. Footer */}
         <footer className={styles.footer}>
-          &copy; {new Date().getFullYear()} Portfolio Builder. All rights reserved.
+          &copy; {new Date().getFullYear()} Profolio. All rights reserved.
         </footer>
       </div>
     </>

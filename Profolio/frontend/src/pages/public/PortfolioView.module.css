@@ -1,72 +1,292 @@
+/* frontend/src/pages/public/PortfolioView.module.css */
+
 /* --- Base Layout & Container --- */
 .portfolioContainer {
-    padding: 60px 40px;
-    max-width: 1200px;
+    max-width: 100vw; 
     margin: 0 auto;
     background-color: var(--color-primary-dark);
     min-height: 100vh;
-    box-sizing: border-box; /* Ensure padding doesn't affect total width */
+    box-sizing: border-box;
+    overflow-x: hidden; 
 }
 
-/* --- Hero / Header Section --- */
-.header {
-    margin-bottom: 60px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid var(--color-border-dark);
-    text-align: center;
+/* --- New: Dynamic Sections & Banner --- */
+.bannerSection {
+    width: 100%;
+    height: 50vh; 
+    background-size: cover;
+    background-position: center;
+    background-color: var(--color-secondary-dark); 
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.bannerOverlayText {
+    color: var(--color-text-light);
+    font-size: 3rem;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+/* --- About Me: 2-Column Layout --- */
+.aboutSection {
+    padding: 60px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.aboutGrid {
+    display: grid;
+    grid-template-columns: 280px 1fr; 
+    gap: 40px;
+    align-items: start;
+}
+
+.selfImageContainer {
+    width: 280px;
+    height: 280px;
+    border-radius: 15px; 
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border: 3px solid var(--color-accent-blue); 
+    flex-shrink: 0; 
+}
+
+.selfImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.textContent {
+    padding-top: 20px;
 }
 
 .name {
-    font-size: 4.5rem; /* Larger and more impactful */
-    font-weight: 900; /* Extra bold */
+    font-size: 3rem;
+    font-weight: 900;
     color: var(--color-text-light);
-    line-height: 1;
     margin-bottom: 5px;
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 500;
+    font-size: 1.5rem;
     color: var(--color-accent-blue);
+    margin-bottom: 15px;
+}
+
+.tagline {
+    font-size: 1.5rem;
+    color: var(--color-text-muted);
+    font-weight: 300;
     margin-bottom: 25px;
 }
 
-.bioSection {
-    margin-bottom: 60px;
-}
-
 .bio {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     line-height: 1.8;
     color: var(--color-text-muted);
-    max-width: 900px;
+}
+
+/* --- Carousel Sections (Slick Specific) --- */
+.carouselSection {
+    padding: 40px 0;
+    max-width: 100vw;
     margin: 0 auto;
+    text-align: center;
+    position: relative;
+}
+
+/* CRITICAL: Slick slider wrapper - sets padding for side visibility */
+.slickSlider {
+    padding: 0 20px; 
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* --- Custom Arrows (White with transparent background) --- */
+.slickPrev, .slickNext {
+    font-size: 0; 
+    line-height: 1;
+    color: transparent; 
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2); 
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.slickPrev:hover, .slickNext:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Ensure slick arrows are visible and white */
+.slickPrev::before, .slickNext::before {
+    font-family: 'slick';
+    font-size: 20px;
+    line-height: 1;
+    color: #fff; /* White arrow icon color */
+}
+
+.slickPrev { left: 10px; }
+.slickNext { right: 10px; }
+
+
+/* --- Custom Pagination Dots (White color) --- */
+.slickDots {
+    bottom: -40px; 
+    list-style: none;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+.slickDots li button::before {
+    color: #fff; /* White color for inactive dots */
+    opacity: .5;
+    font-size: 6px;
+}
+
+.slickDots li.slick-active button::before {
+    color: #fff; /* White color for active dot */
+    opacity: 1;
+    font-size: 8px; 
+}
+
+
+/* --- Card Styles (SQUARER ASPECT RATIO & Scaling) --- */
+.slickSlideContent {
+    padding: 10px; 
+    height: 100%;
+}
+
+/* Project Card Styling */
+.projectCard {
+    /* Fixed 1:1 aspect ratio trick */
+    position: relative;
+    padding-bottom: 100%; 
+    height: 0; 
+    
+    background-color: var(--color-secondary-dark);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--color-border-dark);
+    transition: all 0.3s ease-in-out; 
+}
+
+.projectCardInner {
+    /* Content wrapper for fixed ratio */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+/* Skill Card Styling */
+.skillTag {
+    position: relative;
+    padding-bottom: 70%; 
+    height: 0;
+    
+    background-color: var(--color-secondary-dark);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    border: 1px solid var(--color-border-dark);
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skillTag span {
+    /* Position text absolutely within the 0-height container */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-accent-blue);
+    width: 90%;
     text-align: center;
 }
 
-/* --- Social Links --- */
-.socialLinks {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 25px;
+/* CRITICAL: Scaling for Active/Inactive Slides (Reference Image Effect) */
+.slick-center .skillTag,
+.slick-center .projectCard {
+    transform: scale(1.08); /* Larger center card */
+    opacity: 1;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    border-color: var(--color-accent-blue);
 }
 
-.socialLink {
+.slick-slide:not(.slick-center) .skillTag,
+.slick-slide:not(.slick-center) .projectCard {
+    transform: scale(0.9); /* Smaller side cards */
+    opacity: 0.7; /* Dimmer side cards */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-color: var(--color-border-dark);
+}
+
+/* --- General Component Styles --- */
+.projectName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    margin-bottom: 10px;
+}
+
+.projectDescription {
     color: var(--color-text-muted);
-    font-size: 1.1rem;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.projectLinks {
+    display: flex;
+    gap: 15px;
+    justify-content: center; 
+    margin-top: auto;
+}
+.projectLink {
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
     text-decoration: none;
-    transition: color 0.2s;
-    display: flex; /* For potential icons */
-    align-items: center;
-    gap: 5px;
+    font-size: 0.95rem;
+}
+.githubLink {
+    background-color: #000;
+    color: var(--color-text-light);
+    border: 1px solid #64748b; 
+}
+.demoLink {
+    background-color: var(--color-accent-blue);
+    color: var(--color-text-light);
 }
 
-.socialLink:hover {
-    color: var(--color-accent-blue);
-}
-
-/* --- Section Titles --- */
+/* --- Section Titles & Base Styles --- */
 .sectionTitle {
     font-size: 2.5rem;
     font-weight: 700;
@@ -76,7 +296,6 @@
     position: relative;
     padding-bottom: 10px;
 }
-/* Subtle underline accent for section title */
 .sectionTitle::after {
     content: '';
     position: absolute;
@@ -89,79 +308,9 @@
     border-radius: 2px;
 }
 
-/* --- Projects Grid --- */
-.projectsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin-bottom: 60px;
-}
-
-.projectCard {
-    background-color: var(--color-secondary-dark);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--color-border-dark);
-    transition: transform 0.3s, border-color 0.3s;
-}
-
-.projectCard:hover {
-    transform: translateY(-8px); /* Lift effect */
-    border-color: var(--color-accent-blue);
-    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
-}
-
-.projectName {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--color-text-light);
-    margin-bottom: 10px;
-}
-
-.projectDescription {
-    color: var(--color-text-muted);
-    margin-bottom: 25px;
-    line-height: 1.6;
-}
-
-.projectLinks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.projectLink {
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: opacity 0.2s, background-color 0.2s;
-    font-size: 0.95rem;
-}
-
-.githubLink {
-    background-color: #000;
-    color: var(--color-text-light);
-    border: 1px solid #64748b; /* Subtle outline */
-}
-.githubLink:hover {
-    background-color: #1f2937;
-    border-color: #64748b;
-}
-
-.demoLink {
-    background-color: var(--color-accent-blue);
-    color: var(--color-text-light);
-}
-.demoLink:hover {
-    background-color: #2563eb;
-}
-
 /* --- Footer --- */
 .footer {
-    margin-top: 60px;
-    padding-top: 20px;
+    padding: 30px;
     color: var(--color-text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--color-border-dark);
@@ -169,95 +318,31 @@
 }
 
 /* --- Responsive adjustments --- */
+@media (max-width: 1024px) {
+    /* Tablet: Show 2 slides */
+    .slickPrev { left: 5px; }
+    .slickNext { right: 5px; }
+    .slickSlider { padding: 0 10px; }
+}
+
 @media (max-width: 768px) {
-    .name {
-        font-size: 3rem;
+    /* Mobile: Show 1 slide */
+    .aboutGrid {
+        grid-template-columns: 1fr; 
+        gap: 20px;
     }
-    .title {
-        font-size: 1.5rem;
+    .selfImageContainer {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto; 
     }
-    .projectsGrid {
-        grid-template-columns: 1fr;
+    .textContent {
+        text-align: center;
     }
-    .portfolioContainer {
-        padding: 30px 15px;
+    .socialLinks {
+        justify-content: center;
     }
-}
-
-/* Add these styles to your existing PortfolioView.module.css file */
-
-.tagline {
-    font-size: 1.5rem;
-    color: var(--color-text-muted);
-    font-weight: 300;
-    margin-bottom: 25px;
-}
-
-/* --- SKILLS Section Styles --- */
-.skillSection {
-    margin-bottom: 60px;
-    padding: 20px 0;
-}
-
-.tagListContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.skillTag {
-    background-color: var(--color-secondary-dark);
-    color: var(--color-accent-blue);
-    padding: 8px 15px;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 1rem;
-    border: 1px solid var(--color-border-dark);
-    transition: background-color 0.2s;
-}
-
-.skillTag:hover {
-    background-color: #1e3a8a; /* Darker blue on hover */
-}
-
-/* --- EXPERIENCE & EDUCATION Section Styles --- */
-.experienceSection, .educationSection {
-    margin-bottom: 60px;
-    padding: 20px 0;
-}
-
-.experienceCard, .educationCard {
-    background-color: var(--color-secondary-dark);
-    padding: 25px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border-left: 5px solid var(--color-accent-blue); /* Visual accent bar */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.experienceCard h3, .educationCard h3 {
-    font-size: 1.3rem;
-    color: var(--color-text-light);
-    margin-bottom: 5px;
-}
-
-.educationCard h4 {
-    font-size: 1rem;
-    color: var(--color-accent-green); /* Use green for institutional highlight */
-    margin-top: 5px;
-}
-
-.durationText {
-    font-style: italic;
-    color: var(--color-text-muted);
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-}
-
-.descriptionText {
-    color: var(--color-text-light);
-    line-height: 1.6;
+    .slickPrev { left: 0px; }
+    .slickNext { right: 0px; }
+    .slickSlider { padding: 0 5px; }
 }

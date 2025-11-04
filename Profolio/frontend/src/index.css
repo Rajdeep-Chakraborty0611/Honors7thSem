@@ -1,1 +1,8 @@
+/* frontend/src/index.css */
+
+/* CRITICAL FIX: Use simple package paths to resolve files in node_modules */
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
+/* Do not change the module import below this */
 @import url('./styles/theme.css');

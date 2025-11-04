@@ -20,7 +20,7 @@ const AppNavbar = () => {
     return (
         <nav className={styles.navbar}>
             <Link to={isAuthenticated ? "/dashboard" : "/"} className={styles.logo}>
-                Portfolio Builder 🛠️
+                Profolio 
             </Link>
 
             <div className={styles.navLinks}>

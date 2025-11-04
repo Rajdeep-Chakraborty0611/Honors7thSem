@@ -1,5 +1,32 @@
 import { db } from '../firebaseConfig';
 import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { storage } from '../firebaseConfig'; 
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// --- New: Image Upload Functions ---
+
+/**
+ * Uploads a file to Firebase Storage and returns the public URL.
+ * @param {File} file - The file object to upload.
+ * @param {string} uid - The user's ID.
+ * @param {string} type - 'profile' or 'banner'.
+ */
+export const uploadFile = async (file, uid, type) => {
+    // Determine the storage path (e.g., 'users/userId/profile.jpg')
+    const fileExtension = file.name.split('.').pop();
+    const storagePath = `users/${uid}/${type}.${fileExtension}`;
+    
+    const storageRef = ref(storage, storagePath);
+    
+    // Upload the file
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Get the permanent download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+};
+
 
 // --- 1. User Profile Functions ---
 

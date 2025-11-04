@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { updateProfile } from '../../services/firestoreService';
+// CRITICAL: Ensure uploadFile is imported
+import { updateProfile, uploadFile } from '../../services/firestoreService'; 
 import styles from './ProfileEditor.module.css';
 
 const emptyExperience = { company: '', title: '', duration: '', description: '' };
@@ -16,6 +17,9 @@ const ProfileEditor = () => {
   const [experience, setExperience] = useState([]);
   const [newExperience, setNewExperience] = useState(emptyExperience);
   
+  const [profileImageFile, setProfileImageFile] = useState(null); 
+  const [bannerImageFile, setBannerImageFile] = useState(null); 
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -41,14 +45,21 @@ const ProfileEditor = () => {
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
+    // --- Handlers for File Inputs ---
+    const handleFileChange = (e, setter) => {
+        if (e.target.files[0]) {
+            setter(e.target.files[0]);
+        }
+    };
+
   // --- Handlers for Skills (Tags) ---
   const handleAddSkill = (e) => {
-    e.preventDefault();
-    const skill = newSkill.trim();
-    if (skill && !skills.includes(skill)) {
-      setSkills(prev => [...prev, skill]);
-      setNewSkill('');
-    }
+        if (e && e.preventDefault) e.preventDefault(); 
+        const skill = newSkill.trim();
+        if (skill && !skills.includes(skill)) {
+            setSkills(prev => [...prev, skill]);
+            setNewSkill('');
+        }
   };
 
   const handleRemoveSkill = (skillToRemove) => {
@@ -63,10 +74,8 @@ const ProfileEditor = () => {
   
   const handleAddArrayItem = (listSetter, newItem, emptyItem, e) => {
       e.preventDefault();
-      // Check if at least one field is filled before adding
       if (Object.values(newItem).some(x => x && x.toString().trim() !== "")) {
           listSetter(prev => [...prev, newItem]);
-          // Reset the form fields
           if (listSetter === setEducation) setNewEducation(emptyEducation);
           if (listSetter === setExperience) setNewExperience(emptyExperience);
       } else {
@@ -78,37 +87,62 @@ const ProfileEditor = () => {
       listSetter(list.filter((_, i) => i !== index));
   };
 
-  // --- Submission ---
+  // --- Submission (Main Form) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage('');
+    setMessage('Saving profile data...');
     
     if (!currentUser) {
         setMessage('❌ Error: Not logged in.');
         setIsSubmitting(false);
         return;
     }
-    
-    // 1. Merge all nested data into one object for Firestore
+
+    let updatedProfileData = { ...profileData };
+
+    // 1. UPLOAD IMAGES AND GET URLS
+    try {
+        if (profileImageFile) {
+            setMessage('Uploading profile picture...');
+            // CRITICAL: Call actual upload function and save the URL
+            const url = await uploadFile(profileImageFile, currentUser.uid, 'profile'); 
+            updatedProfileData.profilePicUrl = url;
+            setProfileImageFile(null); // Clear file state
+        }
+        if (bannerImageFile) {
+            setMessage('Uploading banner image...');
+            // CRITICAL: Call actual upload function and save the URL
+            const url = await uploadFile(bannerImageFile, currentUser.uid, 'banner');
+            updatedProfileData.bannerUrl = url;
+            setBannerImageFile(null); // Clear file state
+        }
+    } catch (uploadError) {
+        console.error("Image Upload Error:", uploadError);
+        setMessage(`❌ Image upload failed: ${uploadError.message}. Please check Firebase Storage rules.`);
+        setIsSubmitting(false);
+        return;
+    }
+    
+    // 2. Merge all nested data and new URLs
     const finalProfileData = {
-        ...profileData,
+        ...updatedProfileData, // Contains the new profilePicUrl and bannerUrl
         skills,
         education,
         experience,
     };
 
     try {
-        // 2. Save merged data to Firestore
+        // 3. Save merged data to Firestore
         await updateProfile(currentUser.uid, finalProfileData);
         
-        // 3. Update the global context with the new data
+        // 4. Update the global context (triggers public view refresh)
         updateContextProfile(finalProfileData);
         
-        setMessage('✅ Profile saved successfully!');
-    } catch (error) {
-        console.error("Error saving profile:", error);
-        setMessage(`❌ Error saving profile: ${error.message}`);
+        setMessage('✅ Profile and images saved successfully! Refresh public view to see changes.');
+    } catch (dbError) {
+        console.error("Error saving profile data:", dbError);
+        setMessage(`❌ Database save failed: ${dbError.message}`);
     } finally {
         setIsSubmitting(false);
     }
@@ -123,8 +157,46 @@ const ProfileEditor = () => {
         Provide the details that will be displayed on your public portfolio.
       </p>
 
+      {/* MAIN FORM START */}
       <form onSubmit={handleSubmit}>
         
+        {/* ========================================================= */}
+        {/* SECTION 0: IMAGE UPLOADS */}
+        {/* ========================================================= */}
+        <div className={styles.section}>
+            <h3 className={styles.sectionTitle}>Image Uploads</h3>
+            <div className={styles.profileForm}>
+                
+                {/* Profile Picture */}
+                <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Profile Picture (Square):</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => handleFileChange(e, setProfileImageFile)} 
+                        className={styles.formInput} 
+                    />
+                    <small className={styles.subtitle} style={{marginTop: '5px'}}>
+                        Current: {profileData.profilePicUrl ? 'Uploaded' : 'Default'}
+                    </small>
+                </div>
+                
+                {/* Banner Image */}
+                <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Banner Image (Wide):</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => handleFileChange(e, setBannerImageFile)} 
+                        className={styles.formInput} 
+                    />
+                    <small className={styles.subtitle} style={{marginTop: '5px'}}>
+                        Current: {profileData.bannerUrl ? 'Uploaded' : 'Default'}
+                    </small>
+                </div>
+            </div>
+        </div>
+
         {/* ========================================================= */}
         {/* SECTION 1: BASIC & CONTACT INFO (Simple Fields) */}
         {/* ========================================================= */}
@@ -182,7 +254,10 @@ const ProfileEditor = () => {
                 ))}
             </div>
             
-            <form onSubmit={handleAddSkill} style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px' }} 
+                    onKeyDown={(e) => { 
+                        if (e.key === 'Enter') handleAddSkill(e); 
+                    }}> 
                 <input
                     type="text"
                     value={newSkill}
@@ -191,8 +266,15 @@ const ProfileEditor = () => {
                     className={styles.formInput}
                     style={{ flexGrow: 1 }}
                 />
-                <button type="submit" className={styles.addArrayButton} style={{ width: '100px' }}>Add</button>
-            </form>
+                <button 
+                    type="button" 
+                    onClick={handleAddSkill} 
+                    className={styles.addArrayButton} 
+                    style={{ width: '100px' }}
+                >
+                    Add
+                </button>
+            </div>
         </div>
 
         {/* ========================================================= */}
@@ -223,7 +305,7 @@ const ProfileEditor = () => {
                         <label className={styles.formLabel}>Company:</label>
                         <input type="text" name="company" placeholder="Company Name" value={newExperience.company} 
                             onChange={(e) => handleArrayChange(setNewExperience, newExperience, e)} 
-                            className={styles.formInput} /> {/* Removed required */}
+                            className={styles.formInput} />
                     </div>
 
                     {/* Input 2: Title */}
@@ -231,7 +313,7 @@ const ProfileEditor = () => {
                         <label className={styles.formLabel}>Title/Role:</label>
                         <input type="text" name="title" placeholder="Software Engineer" value={newExperience.title} 
                             onChange={(e) => handleArrayChange(setNewExperience, newExperience, e)} 
-                            className={styles.formInput} /> {/* Removed required */}
+                            className={styles.formInput} />
                     </div>
 
                     {/* Input 3: Duration */}
@@ -239,7 +321,7 @@ const ProfileEditor = () => {
                         <label className={styles.formLabel}>Duration (e.g., 2020 - Present):</label>
                         <input type="text" name="duration" placeholder="2020 - Present" value={newExperience.duration} 
                             onChange={(e) => handleArrayChange(setNewExperience, newExperience, e)} 
-                            className={styles.formInput} /> {/* Removed required */}
+                            className={styles.formInput} />
                     </div>
                     
                     {/* Input 4: Description (Full Width) */}
@@ -283,7 +365,7 @@ const ProfileEditor = () => {
                     <label className={styles.formLabel}>Institution:</label>
                     <input type="text" name="institution" placeholder="University Name" value={newEducation.institution} 
                         onChange={(e) => handleArrayChange(setNewEducation, newEducation, e)} 
-                        className={styles.formInput} /> {/* Removed required */}
+                        className={styles.formInput} />
                 </div>
                 
                 {/* Input 2: Degree */}
@@ -291,7 +373,7 @@ const ProfileEditor = () => {
                     <label className={styles.formLabel}>Degree/Certificate:</label>
                     <input type="text" name="degree" placeholder="B.Tech, M.S., etc." value={newEducation.degree} 
                         onChange={(e) => handleArrayChange(setNewEducation, newEducation, e)} 
-                        className={styles.formInput} /> {/* Removed required */}
+                        className={styles.formInput} />
                 </div>
                 
                 {/* Input 3: Field */}
@@ -299,7 +381,7 @@ const ProfileEditor = () => {
                     <label className={styles.formLabel}>Field of Study:</label>
                     <input type="text" name="field" placeholder="Computer Science" value={newEducation.field} 
                         onChange={(e) => handleArrayChange(setNewEducation, newEducation, e)} 
-                        className={styles.formInput} /> {/* Removed required */}
+                        className={styles.formInput} />
                 </div>
                 
                 {/* Input 4: Period */}
@@ -307,7 +389,7 @@ const ProfileEditor = () => {
                     <label className={styles.formLabel}>Period (e.g., 2018 - 2022):</label>
                     <input type="text" name="period" placeholder="2018 - 2022" value={newEducation.period} 
                         onChange={(e) => handleArrayChange(setNewEducation, newEducation, e)} 
-                        className={styles.formInput} /> {/* Removed required */}
+                        className={styles.formInput} />
                 </div>
 
                 <button type="button" onClick={(e) => handleAddArrayItem(setEducation, newEducation, emptyEducation, e)} className={styles.addArrayButton}>
